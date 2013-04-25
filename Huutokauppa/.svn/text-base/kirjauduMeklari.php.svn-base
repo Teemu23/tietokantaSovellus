@@ -1,0 +1,26 @@
+<?php
+
+include("/home/teemsilt/htdocs/Huutokauppa/mysql/yhteys.php");
+include("/home/teemsilt/htdocs/Huutokauppa/funktiot.php");
+if (isset($_POST['Kirjaudu sisään'])) {
+    kirjaudu($yhteys);
+}
+?>
+<!DOCTYPE HTML SYSTEM "about:legacy-compat">
+<html>
+<body bgcolor="rgb=#C0C0C0">
+<form action="kirjautunutMeklari.php" method="post">
+    Käyttäjätunnus: <input name="ktunnus" type="text" id="ktunnus"> <br />
+    Salasana: <input name="salasana" type="text" id="salasana"> <br />
+    <input type="submit" value="Kirjaudu sisään" />
+    <a href="etusivu.php">Takaisin</a> 
+</form>
+<hr />
+</body>
+</html>
+
+
+<?php
+mysql_close($yhteys);
+?>
+

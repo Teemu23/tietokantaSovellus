@@ -1,0 +1,217 @@
+<?php
+
+function rekisteroi($yhteys) {
+    global $error;
+
+    $etunimi = mysql_real_escape_string(htmlentities(trim($_POST['enimi'])));
+    $sukunimi = mysql_real_escape_string(htmlentities(trim($_POST['snimi'])));
+    $ktunnus = mysql_real_escape_string(htmlentities(trim($_POST['ktunnus'])));
+    $salasana = mysql_real_escape_string(htmlentities(trim($_POST['salasana'])));
+    $vahsalasana = mysql_real_escape_string(htmlentities(trim($_POST['vah_salasana'])));
+    $osoite = mysql_real_escape_string(htmlentities(trim($_POST['osoite'])));
+    $puh_num = mysql_real_escape_string(htmlentities(trim($_POST['puh_num'])));
+    $sahkoposti = mysql_real_escape_string(htmlentities(trim($_POST['email'])));
+
+
+    if (empty($etunimi)) {
+        $error .= "Et antanut etunimeä<br />";
+    }
+    if (empty($sukunimi)) {
+        $error .= "Et antanut sukunimeä<br />";
+    }
+    if (empty($ktunnus)) {
+        $error .= "Et antanut käyttäjätunnusta<br />";
+    }
+    if (empty($salasana)) {
+        $error .= "Et antanut salasanaa<br />";
+    }
+    if (empty($vahsalasana)) {
+        $error .= "Et vahvistanut salasanaa<br />";
+    }
+    if (empty($osoite)) {
+        $error .= "Et antanut osoitettasi<br />";
+    }
+    if (empty($puh_num)) {
+        $error .= "Et antanut puhelinnumeroasi<br />";
+    }
+    if (empty($sahkoposti)) {
+        $error .= "Et antanut sähköpostiosoitettasi<br />";
+    }
+    if (strlen($salasana) < 6) {
+        $error .= "Salasanan tulee olla vähintään kuusi merkkiä pitkä<br />";
+    }
+    if ($salasana != $vahsalasana) {
+        $error .= "Salasanat eivät tästää<br />";
+    }
+
+
+
+
+    if (empty($error)) {
+        mysql_query("INSERT INTO Asiakas(etunimi, sukunimi, kayttajatunnus, salasana, osoite, puh_num, sahkoposti)
+            Values('$etunimi', '$sukunimi', '$ktunnus', '$salasana', '$osoite', '$puh_num', '$sahkoposti')")
+                or die("Lisäys epäonnistui: " . mysql_error() . "</div></body></html>");
+    }
+}
+?>
+
+<?php
+
+function kirjaudu($yhteys) {
+    
+    $ktunnus = mysql_real_escape_string(htmlentities(trim($_POST['ktunnus'])));
+    $salasana = mysql_real_escape_string(htmlentities(trim($_POST['salasana'])));
+
+    $sql = "SELECT * FROM Asiakas WHERE kayttajatunnus = '$ktunnus' and salasana = '$salasana'";
+    
+    $tulos = mysql_query($sql);
+
+    $laske = mysql_num_rows($tulos);
+
+    if ($laske == 1) {
+        session_register("ktunnus");
+        session_register("salasana");
+        header("location: sisaan.php");
+    } else {
+        echo "Väärä käyttäjätunnus tai salasana";
+    }
+}
+?>
+
+<?php
+function lisaaTuoteEsite($yhteys){
+    global $error;
+    
+    $nimi = mysql_real_escape_string(htmlentities(trim($_POST['nimi'])));
+    $kuvaus = mysql_real_escape_string(htmlentities(trim($_POST['kuvaus'])));
+    
+    if (empty($nimi)) {
+        $error .= "Et antanut nimeä<br />";
+    }
+    if (empty($kuvaus)) {
+        $error .= "Et antanut kuvausta<br />";
+    }
+    if (empty($error)) {
+        mysql_query("INSERT INTO Tuote_esite(nimi, kuvaus)
+            Values('$nimi', '$kuvaus')")
+                or die("Lisäys epäonnistui: " . mysql_error() . "</div></body></html>");
+    }
+    
+}
+?>
+
+<?php
+function lisaaTuote($yhteys){
+    global $error;
+    
+    $minimihinta = mysql_real_escape_string(htmlentities(trim($_POST['mhinta'])));
+    $kuva = mysql_real_escape_string(htmlentities(trim($_POST['kuva'])));
+    $alk_pvm = mysql_real_escape_string(htmlentities(trim($_POST['a_pvm'])));
+    $lop_pvm = mysql_real_escape_string(htmlentities(trim($_POST['l_pvm'])));
+    $Tuote_esite_id = mysql_real_escape_string(htmlentities(trim($_POST['id'])));
+    
+    if (empty($minimihinta)) {
+        $error .= "Et antanut minimihintaa<br />";
+    }
+    if (empty($alk_pvm)) {
+        $error .= "Et antanut aloitus päivämäärää.<br />";
+    }
+    if (empty($lop_pvm)) {
+        $error .= "Et antanut lopetus päivämäärää..<br />";
+    }
+    if (empty($Tuote_esite_id)) {
+        $error .= "Et antanut Tuote-esitettä.<br />";
+    }
+    if (empty($error)) {
+        mysql_query("INSERT INTO Tuote(minimihinta, kuva, alk_pvm, lop_pvm, Tuote_esite_id)
+            Values('$minimihinta', '$kuva', '$alk_pvm', '$lop_pvm', '$Tuote_esite_id')")
+                or die("Lisäys epäonnistui: " . mysql_error() . "</div></body></html>");
+    }
+    
+}
+?>
+<?php
+function poistaTuoteEsite($yhteys){
+    global $error;
+    
+    $nimi = mysql_real_escape_string(htmlentities(trim($_POST['nimi'])));
+    $kuvaus = mysql_real_escape_string(htmlentities(trim($_POST['kuvaus'])));
+    
+    if (empty($nimi)) {
+        $error .= "Et antanut nimeä<br />";
+    }
+    if (empty($kuvaus)) {
+        $error .= "Et antanut kuvausta<br />";
+    }
+    if (empty($error)) {
+        mysql_query("INSERT INTO Tuote_esite(nimi, kuvaus)
+            Values('$nimi', '$kuvaus')")
+                or die("Lisäys epäonnistui: " . mysql_error() . "</div></body></html>");
+    }
+    
+}
+?>
+
+<?php
+function poistaTuote($yhteys){
+    global $error;
+    
+    $minimihinta = mysql_real_escape_string(htmlentities(trim($_POST['mhinta'])));
+    $kuva = mysql_real_escape_string(htmlentities(trim($_POST['kuva'])));
+    $alk_pvm = mysql_real_escape_string(htmlentities(trim($_POST['a_pvm'])));
+    $lop_pvm = mysql_real_escape_string(htmlentities(trim($_POST['l_pvm'])));
+    $Tuote_esite_id = mysql_real_escape_string(htmlentities(trim($_POST['id'])));
+    
+    if (empty($minimihinta)) {
+        $error .= "Et antanut minimihintaa<br />";
+    }
+    if (empty($alk_pvm)) {
+        $error .= "Et antanut aloitus päivämäärää.<br />";
+    }
+    if (empty($lop_pvm)) {
+        $error .= "Et antanut lopetus päivämäärää..<br />";
+    }
+    if (empty($Tuote_esite_id)) {
+        $error .= "Et antanut Tuote-esitettä.<br />";
+    }
+    if (empty($error)) {
+        mysql_query("INSERT INTO Tuote(minimihinta, kuva, alk_pvm, lop_pvm, Tuote_esite_id)
+            Values('$minimihinta', '$kuva', '$alk_pvm', '$lop_pvm', '$Tuote_esite_id')")
+                or die("Lisäys epäonnistui: " . mysql_error() . "</div></body></html>");
+    }
+    
+}
+?>
+<?php
+function tuotteet($yhteys){
+    $nimi = mysql_real_escape_string(htmlentities(trim($_POST['nimi'])));
+    $kuvaus = mysql_real_escape_string(htmlentities(trim($_POST['kuvaus'])));
+    $minimihinta = mysql_real_escape_string(htmlentities(trim($_POST['mhinta'])));
+    $kuva = mysql_real_escape_string(htmlentities(trim($_POST['kuva'])));
+    $alk_pvm = mysql_real_escape_string(htmlentities(trim($_POST['apvm'])));
+    $lop_pvm = mysql_real_escape_string(htmlentities(trim($_POST['lpvm'])));
+    $tuote_esite_id = mysql_real_escape_string(htmlentities(trim($_POST['tuote_esite_id'])));
+    
+    $kysely = "SELECT * FROM Tuote, Tuote_esite";
+    $haku = mysql_query($kysely, $yhteys) or die("virhe kyselyssä!");
+    
+    
+    echo "<table border>";
+    echo "<tr><td><b>nimi</b></td><td><b>kuvaus</b></td><td><b>minimihinta</b></td><td><b>kuva</b></td>
+        <td><b>alk_pvm</b></td><td><b>lop_pvm</b></td><td><b>tuote_esite_id</b></td></tr>";
+    
+    for($i = 0; $i < mysql_num_rows($haku); $i++){
+        $nimi = mysql_result($haku, $i, "Nimi");
+        $kuvaus = mysql_result($haku, $i, "kuvaus");
+        $minimihinta = mysql_result($haku, $i, "minimihinta");
+        $kuva = mysql_result($haku, $i, "kuva");
+        $alk_pvm = mysql_result($haku, $i, "alk_pvm");
+        $lop_pvm = mysql_result($haku, $i, "lop_pvm");
+        $tuote_esite_id = mysql_result($haku, $i, "Tuote_esite_id");
+        
+        echo"<tr><td>$nimi</td><td>$kuvaus</td><td>$minimihinta</td>td>$kuva</td>td>$alk_pvm</td>td>$lop_pvm</td>td>$tuote_esite_id</td></tr>";
+    }
+    echo "</table>";
+    echo "</body></html>";
+}
+?>

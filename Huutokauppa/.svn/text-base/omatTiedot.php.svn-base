@@ -1,0 +1,6 @@
+<?php include("ylaAsiakas.php"); ?>
+<h2>Omat tiedot</h2>
+<p>Nimi, käyttäjätunnus yms.</p>
+
+</body>
+</html>

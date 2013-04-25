@@ -1,0 +1,33 @@
+<?php
+include("/home/teemsilt/htdocs/Huutokauppa/mysql/yhteys.php");
+include("/home/teemsilt/htdocs/Huutokauppa/funktiot.php");
+?>
+<?php include("yla.php"); ?>
+    <h2>Tuotteet</h2>
+    <p>Täällä voit selailla huudettavia tuotteita</p>
+<?php
+
+    $kysely = "Select * FROM Tuote,Tuote_esite where Tuote.Tuote_esite_id=Tuote_esite.id order by nimi";
+    $haku = mysql_query($kysely, $yhteys) or die("virhe kyselyssä!");
+    
+    
+    echo "<table border>";
+    echo "<tr><td><b>Nimi</b></td><td><b>Kuvaus</b></td><td><b>Minimihinta</b></td><td><b>Kuva</b></td>
+        <td><b>Aloituspäivämäärä</b></td><td><b>lopetuspäivämäärä</b></td></tr>";
+    
+    for($i = 0; $i < mysql_num_rows($haku); $i++){
+        $nimi = mysql_result($haku, $i, "Nimi");
+        $kuvaus = mysql_result($haku, $i, "kuvaus");
+        $minimihinta = mysql_result($haku, $i, "minimihinta");
+        $kuva = mysql_result($haku, $i, "kuva");
+        $alk_pvm = mysql_result($haku, $i, "alk_pvm");
+        $lop_pvm = mysql_result($haku, $i, "lop_pvm");
+        
+        echo"<tr><td>$nimi</td><td>$kuvaus</td><td>$minimihinta</td><td>$kuva</td><td>$alk_pvm</td><td>$lop_pvm</td></tr>";
+    }
+    echo "</table>";
+    echo "</body></html>";
+
+?>
+
+
