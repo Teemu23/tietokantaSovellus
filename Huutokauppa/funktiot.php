@@ -157,7 +157,7 @@ function lisaaTuote($yhteys) {
         $error .= "Lopetuspäivän tulee olla aloituspäivää myöhemmin (päivämäärä tulee antaa muodossa YYYY.MM.DD HH:MM:SS).<br />";
     }
     if (empty($error)) {
-        if(empty($alk_pvm)){
+        if (empty($alk_pvm)) {
             $alk_pvm = date("Y-m-d H:i:s");
         }
         mysql_query("INSERT INTO Tuote(minimihinta, kuva, alk_pvm, lop_pvm, Tuote_esite_id)
@@ -203,32 +203,34 @@ function poistaTuote($yhteys) {
 <?php
 
 function tuotteet($yhteys) {
-    $nimi = mysql_real_escape_string(htmlentities(trim($_POST['nimi'])));
-    $kuvaus = mysql_real_escape_string(htmlentities(trim($_POST['kuvaus'])));
-    $minimihinta = mysql_real_escape_string(htmlentities(trim($_POST['mhinta'])));
-    $kuva = mysql_real_escape_string(htmlentities(trim($_POST['kuva'])));
-    $alk_pvm = mysql_real_escape_string(htmlentities(trim($_POST['apvm'])));
-    $lop_pvm = mysql_real_escape_string(htmlentities(trim($_POST['lpvm'])));
-    $tuote_esite_id = mysql_real_escape_string(htmlentities(trim($_POST['tuote_esite_id'])));
 
-    $kysely = "SELECT * FROM Tuote, Tuote_esite";
-    $haku = mysql_query($kysely, $yhteys) or die("virhe kyselyssä!");
+    $kysely = "Select nimi,kuvaus,minimihinta,kuva, alk_pvm, lop_pvm,Tuote.tuoteID, maara FROM Tuote LEFT OUTER JOIN Huuto ON Tuote.tuoteID=Huuto.tuoteID,Tuote_esite where Tuote_esite.id=Tuote.Tuote_esite_id group by Tuote.tuoteID order by Tuote.tuoteID";
+    $haku = mysql_query($kysely, $yhteys) or die(mysql_error());
 
 
     echo "<table border>";
-    echo "<tr><td><b>nimi</b></td><td><b>kuvaus</b></td><td><b>minimihinta</b></td><td><b>kuva</b></td>
-        <td><b>alk_pvm</b></td><td><b>lop_pvm</b></td><td><b>tuote_esite_id</b></td></tr>";
+    echo "<tr><td><b>Nimi</b></td><td><b>Kuvaus</b></td><td><b>Minimihinta</b></td><td><b>Kuva</b></td>
+        <td><b>Aloituspäivämäärä</b></td><td><b>lopetuspäivämäärä</b></td><td><b>Tuote ID</td></b><td><b>Huudettu</td></b></tr>";
 
-    for ($i = 0; $i < mysql_num_rows($haku); $i++) {
-        $nimi = mysql_result($haku, $i, "Nimi");
-        $kuvaus = mysql_result($haku, $i, "kuvaus");
-        $minimihinta = mysql_result($haku, $i, "minimihinta");
-        $kuva = mysql_result($haku, $i, "kuva");
-        $alk_pvm = mysql_result($haku, $i, "alk_pvm");
-        $lop_pvm = mysql_result($haku, $i, "lop_pvm");
-        $tuote_esite_id = mysql_result($haku, $i, "Tuote_esite_id");
+    while ($tulos = mysql_fetch_array($haku)) {
+        echo "<tr><td>" . $tulos['nimi'] . "</td><td>" . $tulos['kuvaus'] . "</td><td>" . $tulos['minimihinta'] . "</td><td>" . $tulos['kuva'] . "</td>
+        <td>" . $tulos['alk_pvm'] . "</td><td>" . $tulos['lop_pvm'] . "</td><td>" . $tulos['tuoteID'] . "</td><td>" . $tulos['maara'] . "</td></tr>";
+    }
+    echo "</table>";
+    echo "</body></html>";
+}
+?>
+<?php
 
-        echo"<tr><td>$nimi</td><td>$kuvaus</td><td>$minimihinta</td>td>$kuva</td>td>$alk_pvm</td>td>$lop_pvm</td>td>$tuote_esite_id</td></tr>";
+function tuoteEsitteet($yhteys) {
+    $kysely = "Select id,nimi,kuvaus FROM Tuote_esite order by id";
+    $haku = mysql_query($kysely, $yhteys) or die(mysql_error());
+
+    echo "<table border>";
+    echo "<tr><td><b>Nimi</b></td><td><b>Kuvaus</b></td><td><b>ID</b></td></tr>";
+
+    while ($tulos = mysql_fetch_array($haku)) {
+        echo "<tr><td>" . $tulos['nimi'] . "</td><td>" . $tulos['kuvaus'] . "</td><td>" . $tulos['id'] . "</td></tr>";
     }
     echo "</table>";
     echo "</body></html>";
@@ -275,22 +277,22 @@ function teeHuuto($yhteys) {
     if ($tulos3['lop_pvm'] < date("Y-m-d H:i:s")) {
         $error .= "Tuotteen huutaminen on päättynyt<br />";
     }
+    if (($uusiMaara < $tulos2['minimihinta'])) {
+        $error .= "Sinun tulee ylittää tuotteen minimihinta, joka on " . $tulos2['minimihinta'] . "<br />";
+    }
+    if (($tulos['maara'] >= $uusiMaara)) {
+        $error .= "Sinun tulee ylittää edellinen huuto, joka oli " . $tulos['maara'] . "<br />";
+    }
 
     if (empty($error)) {
-        if ((empty($haku)) && ($uusiMaara >= $tulos2['minimihinta'])) {
+        if ((empty($haku))) {
             mysql_query("INSERT INTO Huuto(asiakasnumero, tuoteID, maara)
             Values('$asiakasnro', '$Tuote_id', '$uusiMaara')") or die("Lisäys epäonnistui: " . mysql_error() . "</div></body></html>");
-        } else if (($tulos['maara'] < $uusiMaara)) {
-            if (($uusiMaara >= $tulos2['minimihinta'])) {
-                mysql_query("DELETE FROM Huuto Where tuoteID='$Tuote_id'");
-                mysql_query("INSERT INTO Huuto(asiakasnumero, tuoteID, maara)
+        } else {
+            mysql_query("DELETE FROM Huuto Where tuoteID='$Tuote_id'");
+            mysql_query("INSERT INTO Huuto(asiakasnumero, tuoteID, maara)
                 Values('$asiakasnro', '$Tuote_id', '$uusiMaara')") or die("Lisäys epäonnistui: " . mysql_error() . "</div></body></html>");
-            } else {
-                echo ("Sinun tulee ylittää tuotteen minimihinta, joka on " . $tulos2['minimihinta'] . "</div></body></html>");
-            }
         }
-        else
-            echo("Sinun tulee ylittää edellinen huuto, joka oli " . $tulos['maara'] . "</div></body></html>");
     }
 }
 ?>

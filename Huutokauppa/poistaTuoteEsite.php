@@ -9,18 +9,7 @@ if (isset($_POST['poista'])) {
 <?php include("ylaMeklari.php"); ?>
 <h2> Tuote-esitteen poistaminen </h2>
 <?php
-$kysely = "Select id,nimi,kuvaus FROM Tuote_esite order by id";
-$haku = mysql_query($kysely, $yhteys) or die(mysql_error());
-
-
-echo "<table border>";
-echo "<tr><td><b>Nimi</b></td><td><b>Kuvaus</b></td><td><b>ID</b></td></tr>";
-
-while ($tulos = mysql_fetch_array($haku)) {
-    echo "<tr><td>" . $tulos['nimi'] . "</td><td>" . $tulos['kuvaus'] . "</td><td>" . $tulos['id'] . "</td></tr>";
-}
-echo "</table>";
-echo "</body></html>";
+tuoteEsitteet($yhteys);
 ?>
 <br />
 <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
